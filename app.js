@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 
 const userRouter = require("./routes/userRoutes");
-const cardRoutes = require("./routes/cardRoutes");
+const cardRouter = require("./routes/cardRoutes");
 
 const { PORT = 3000 } = process.env;
 
@@ -24,6 +24,6 @@ app.use((req, res, next) => {
   next();
 });
 app.use(userRouter);
-app.use(cardRoutes);
+app.use(cardRouter);
 
 console.log(`Start at port ${PORT}`);
