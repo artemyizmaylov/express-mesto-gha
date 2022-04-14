@@ -8,6 +8,7 @@ const cardRouter = require("./routes/cards");
 
 const { PORT = 3000 } = process.env;
 const DEFAULT_ERROR = 500;
+const NOT_FOUND = 404;
 
 mongoose.connect("mongodb://localhost:27017/mestodb", {
   useNewUrlParser: true,
@@ -35,8 +36,11 @@ app.use((req, res, next) => {
 
   next();
 });
-
 app.use(userRouter);
 app.use(cardRouter);
+
+app.use("/", (req, res) => {
+  res.status(NOT_FOUND).send({ message: "Такого пути не существует" });
+});
 
 console.log(`Start at port ${PORT}`);

@@ -34,11 +34,19 @@ module.exports.createCard = (req, res) => {
 module.exports.removeCard = (req, res) => {
   const { cardId } = req.params;
   cardModel
-    .remove({ _id: cardId })
-    .then((cards) => res.send(cards))
+    .findByIdAndDelete(cardId)
+    .then((card) => {
+      if (card) {
+        res.send(card);
+      } else {
+        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+      }
+    })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+        res
+          .status(BAD_REQUEST)
+          .send({ message: "Передан некорректный ID карточки" });
       }
     });
 };
@@ -49,7 +57,13 @@ module.exports.setLike = (req, res) => {
 
   cardModel
     .findByIdAndUpdate(cardId, { $addToSet: { likes: userId } }, { new: true })
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (card) {
+        res.send(card);
+      } else {
+        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+      }
+    })
     .catch((err) => {
       switch (err.name) {
         case "ValidationError":
@@ -58,7 +72,9 @@ module.exports.setLike = (req, res) => {
           });
           break;
         case "CastError":
-          res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+          res
+            .status(BAD_REQUEST)
+            .send({ message: "Передан некорректный ID карточки" });
           break;
         default:
           res.status(DEFAULT_ERROR).send({ message: "Что-то пошло не так" });
@@ -72,7 +88,13 @@ module.exports.removeLike = (req, res) => {
 
   cardModel
     .findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true })
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (card) {
+        res.send(card);
+      } else {
+        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+      }
+    })
     .catch((err) => {
       switch (err.name) {
         case "ValidationError":
@@ -81,7 +103,9 @@ module.exports.removeLike = (req, res) => {
           });
           break;
         case "CastError":
-          res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+          res
+            .status(BAD_REQUEST)
+            .send({ message: "Передан некорректный ID карточки" });
           break;
         default:
           res.status(DEFAULT_ERROR).send({ message: "Что-то пошло не так" });
