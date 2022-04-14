@@ -1,15 +1,12 @@
-const cardModel = require("../models/card");
-
-const BAD_REQUEST = 400;
-const NOT_FOUND = 404;
-const DEFAULT_ERROR = 500;
+const cardModel = require('../models/card');
+const { BAD_REQUEST, NOT_FOUND, DEFAULT_ERROR } = require('../utils/constants');
 
 module.exports.getCards = (req, res) => {
   cardModel
     .find({})
     .then((cards) => res.send(cards))
     .catch(() => {
-      res.status(DEFAULT_ERROR).send({ message: "Произошла ошибка" });
+      res.status(DEFAULT_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -21,12 +18,12 @@ module.exports.createCard = (req, res) => {
     .create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         res
           .status(BAD_REQUEST)
-          .send({ message: "Переданы некорректные или неполные данные" });
+          .send({ message: 'Переданы некорректные или неполные данные' });
       } else {
-        res.status(DEFAULT_ERROR).send({ message: "Что-то пошло не так" });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -39,14 +36,14 @@ module.exports.removeCard = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+        res.status(NOT_FOUND).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === 'CastError') {
         res
           .status(BAD_REQUEST)
-          .send({ message: "Передан некорректный ID карточки" });
+          .send({ message: 'Передан некорректный ID карточки' });
       }
     });
 };
@@ -61,23 +58,23 @@ module.exports.setLike = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+        res.status(NOT_FOUND).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       switch (err.name) {
-        case "ValidationError":
+        case 'ValidationError':
           res.status(BAD_REQUEST).send({
-            message: "Переданы некорректные или неполные данные",
+            message: 'Переданы некорректные или неполные данные',
           });
           break;
-        case "CastError":
+        case 'CastError':
           res
             .status(BAD_REQUEST)
-            .send({ message: "Передан некорректный ID карточки" });
+            .send({ message: 'Передан некорректный ID карточки' });
           break;
         default:
-          res.status(DEFAULT_ERROR).send({ message: "Что-то пошло не так" });
+          res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -92,23 +89,23 @@ module.exports.removeLike = (req, res) => {
       if (card) {
         res.send(card);
       } else {
-        res.status(NOT_FOUND).send({ message: "Карточка не найдена" });
+        res.status(NOT_FOUND).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       switch (err.name) {
-        case "ValidationError":
+        case 'ValidationError':
           res.status(BAD_REQUEST).send({
-            message: "Переданы некорректные или неполные данные",
+            message: 'Переданы некорректные или неполные данные',
           });
           break;
-        case "CastError":
+        case 'CastError':
           res
             .status(BAD_REQUEST)
-            .send({ message: "Передан некорректный ID карточки" });
+            .send({ message: 'Передан некорректный ID карточки' });
           break;
         default:
-          res.status(DEFAULT_ERROR).send({ message: "Что-то пошло не так" });
+          res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
