@@ -32,8 +32,14 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri(),
   }),
 }), createUser);
+
+app.use(/^\/(?!users|cards)/, () => {
+  throw new NotFound('Некорректный путь запроса');
+});
 
 app.use(auth, celebrate({
   headers: Joi.object().keys({
@@ -49,15 +55,11 @@ app.use(auth, celebrate({
   }),
 }));
 
-app.use(errors());
-
 app.use(userRouter);
 app.use(cardRouter);
 
-app.use('*', () => {
-  throw new NotFound('Некорректный путь запроса');
-});
-
+// Обработка ошибок
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
 
@@ -69,7 +71,7 @@ app.use((err, req, res, next) => {
       res.status(400).send({ message: 'Переданы некорректные или неполные данные' });
       break;
     case 'MongoServerError':
-      res.status(400).send({ message: 'Данный email уже зарегистрирован' });
+      res.status(409).send({ message: 'Данный email уже зарегистрирован' });
       break;
     default:
       res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка сервера' : message });

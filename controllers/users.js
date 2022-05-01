@@ -83,6 +83,10 @@ module.exports.login = (req, res, next) => {
 
   userModel.findOne({ email }).select('+password')
     .then((user) => {
+      if (!user) {
+        throw new Unauthorized('Неправильные почта или пароль');
+      }
+
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
@@ -90,8 +94,9 @@ module.exports.login = (req, res, next) => {
           }
 
           const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
-          res.cookie('jwt', token, { httpOnly: true }).end();
-        });
+          res.cookie('jwt', token, { httpOnly: true }).send({ _id: token });
+        })
+        .catch((err) => next(err));
     })
     .catch((err) => next(err));
 };
