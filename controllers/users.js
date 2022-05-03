@@ -40,9 +40,7 @@ module.exports.updateUserInfo = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .then((user) => res.send(user))
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
@@ -52,9 +50,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
   userModel
     .findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch((err) => {
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -94,7 +90,7 @@ module.exports.login = (req, res, next) => {
           }
 
           const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
-          res.cookie('jwt', token, { httpOnly: true }).send({ _id: token });
+          res.cookie('jwt', token, { httpOnly: true }).send({ jwt: token });
         })
         .catch((err) => next(err));
     })
