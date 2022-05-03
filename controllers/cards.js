@@ -35,7 +35,7 @@ module.exports.removeCard = (req, res, next) => {
       }
       cardModel
         .deleteOne({ _id: card._id })
-        .then((deletedCard) => res.send(deletedCard));
+        .then((isDeleted) => res.send(isDeleted));
     })
     .catch((err) => next(err));
 };

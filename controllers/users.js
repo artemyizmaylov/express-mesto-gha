@@ -30,27 +30,6 @@ module.exports.getUsers = (req, res, next) => {
     });
 };
 
-module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  if (!validator.isEmail(email)) {
-    throw new BadRequest('Некорректный email');
-  }
-
-  bcrypt.hash(password, 10).then((hash) => {
-    userModel
-      .create({
-        name, about, avatar, email, password: hash,
-      })
-      .then((user) => res.send(user))
-      .catch((err) => {
-        next(err);
-      });
-  });
-};
-
 module.exports.updateUserInfo = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
@@ -76,6 +55,27 @@ module.exports.updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  if (!validator.isEmail(email)) {
+    throw new BadRequest('Некорректный email');
+  }
+
+  bcrypt.hash(password, 10).then((hash) => {
+    userModel
+      .create({
+        name, about, avatar, email, password: hash,
+      })
+      .then((user) => res.send(user))
+      .catch((err) => {
+        next(err);
+      });
+  });
 };
 
 module.exports.login = (req, res, next) => {

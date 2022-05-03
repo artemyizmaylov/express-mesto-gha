@@ -3,7 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-const { celebrate, Joi, errors } = require('celebrate');
+const {
+  celebrate, Joi, errors, Segments,
+} = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
@@ -21,28 +23,25 @@ app.listen(PORT);
 
 app.use(bodyParser.json());
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-
 app.post('/signup', celebrate({
-  body: Joi.object().keys({
+  [Segments.BODY]: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
+    name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().uri(),
   }),
 }), createUser);
 
-app.use(/^\/(?!users|cards)/, () => {
-  throw new NotFound('Некорректный путь запроса');
-});
+app.post('/signin', celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), login);
 
 app.use(auth, celebrate({
-  headers: Joi.object().keys({
+  [Segments.HEADERS]: Joi.object().keys({
     authorization: Joi.string().required(),
     cookie: Joi.string(),
     accept: Joi.string(),
@@ -58,10 +57,16 @@ app.use(auth, celebrate({
 app.use(userRouter);
 app.use(cardRouter);
 
+app.use('*', () => {
+  throw new NotFound('Некорректный путь запроса');
+});
+
 // Обработка ошибок
 app.use(errors());
+
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
+  console.log(err);
 
   switch (err.name) {
     case 'CastError':
