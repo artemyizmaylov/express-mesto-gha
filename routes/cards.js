@@ -16,9 +16,9 @@ router.route('/')
   .get(getCards)
   .post(cardsPattern, createCard);
 
-router.delete('/:id', idPattern, removeCard);
+router.delete('/:_id', idPattern, removeCard);
 
-router.route('/:id/likes')
+router.route('/:_id/likes')
   .put(idPattern, setLike)
   .delete(idPattern, removeLike);
 

@@ -35,7 +35,7 @@ const userPattern = celebrate({
 
 const idPattern = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex(),
+    _id: Joi.string().hex(),
   }),
 });
 

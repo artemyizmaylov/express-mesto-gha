@@ -20,32 +20,33 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.removeCard = (req, res, next) => {
-  const { id } = req.params;
+  const { _id } = req.params;
   cardModel
-    .findById(id)
+    .findById(_id)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
+      } else if (!card.owner.equals(req.user._id)) {
+        throw new ForbiddenError('Чужие карточки удалять нельзя!');
       }
+
       return card;
     })
     .then((card) => {
-      if (card.owner !== req.user._id) {
-        throw new ForbiddenError('Чужие карточки удалять нельзя!');
-      }
       cardModel
-        .deleteOne({ _id: card._id })
-        .then((isDeleted) => res.send(isDeleted));
+        .findByIdAndRemove({ _id })
+        .then(() => res.send(card))
+        .catch(next);
     })
     .catch(next);
 };
 
 module.exports.setLike = (req, res, next) => {
-  const { id } = req.params;
+  const { _id } = req.params;
   const userId = req.user._id;
 
   cardModel
-    .findByIdAndUpdate(id, { $addToSet: { likes: userId } }, { new: true })
+    .findByIdAndUpdate(_id, { $addToSet: { likes: userId } }, { new: true })
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');
@@ -56,11 +57,11 @@ module.exports.setLike = (req, res, next) => {
 };
 
 module.exports.removeLike = (req, res, next) => {
-  const { id } = req.params;
+  const { _id } = req.params;
   const userId = req.user._id;
 
   cardModel
-    .findByIdAndUpdate(id, { $pull: { likes: userId } }, { new: true })
+    .findByIdAndUpdate(_id, { $pull: { likes: userId } }, { new: true })
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');

@@ -18,7 +18,7 @@ router.route('/me')
   .get(getCurrentUser)
   .patch(userPattern, updateUserInfo);
 
-router.get('/:id', idPattern, getUser);
+router.get('/:_id', idPattern, getUser);
 
 router.patch('/me/avatar', userPattern, updateUserAvatar);
 

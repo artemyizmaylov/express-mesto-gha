@@ -4,9 +4,9 @@ const NotFoundError = require('../errors/NotFoundError');
 const userModel = require('../models/user');
 
 module.exports.getUser = (req, res, next) => {
-  const { id } = req.params;
+  const { _id } = req.params;
   userModel
-    .findById(id)
+    .findById(_id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -58,8 +58,9 @@ module.exports.createUser = (req, res, next) => {
           name, about, avatar, email, password: hash,
         })
         .then((user) => {
-          const newUser = Object.assign(user);
+          const newUser = user.toObject();
           delete newUser.password;
+
           res.send(newUser);
         })
         .catch(next);
