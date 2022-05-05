@@ -1,8 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const validator = require('validator');
 const NotFound = require('../errors/NotFound');
-const BadRequest = require('../errors/BadRequest');
 const userModel = require('../models/user');
 const Unauthorized = require('../errors/Unauthorized');
 
@@ -58,9 +56,9 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  if (!validator.isEmail(email)) {
-    throw new BadRequest('Некорректный email');
-  }
+  // if (!validator.isEmail(email)) {
+  //   throw new BadRequest('Некорректный email');
+  // }
 
   bcrypt.hash(password, 10).then((hash) => {
     userModel
