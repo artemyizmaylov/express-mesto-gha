@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const NotFoundError = require('../errors/NotFoundError');
 const userModel = require('../models/user');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 module.exports.getUser = (req, res, next) => {
   const { _id } = req.params;
   userModel
@@ -72,10 +74,19 @@ module.exports.login = (req, res, next) => {
 
   userModel.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'secret',
+        { expiresIn: '7d' },
+      );
 
-      res.cookie('jwt', token, { httpOnly: true }).send({ jwt: token });
-      res.send({ token });
+      res
+        .cookie(
+          'jwt',
+          { token },
+          { httpOnly: true },
+        )
+        .send({ token });
     })
     .catch(next);
 };
