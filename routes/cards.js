@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const { celebrate, Joi, Segments } = require('celebrate');
 
 const {
   getCards,
@@ -8,18 +7,19 @@ const {
   setLike,
   removeLike,
 } = require('../controllers/cards');
+const auth = require('../middlewares/auth');
+const { cardsPattern, idPattern } = require('../middlewares/validation');
 
-const cardsPattern = {
-  [Segments.BODY]: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().regex(/^https?:\/\/(www)?.*/),
-  }),
-};
+router.use(auth);
 
-router.get('/cards', getCards);
-router.post('/cards', celebrate(cardsPattern), createCard);
-router.delete('/cards/:cardId', removeCard);
-router.put('/cards/:cardId/likes', setLike);
-router.delete('/cards/:cardId/likes', removeLike);
+router.route('/')
+  .get(getCards)
+  .post(cardsPattern, createCard);
+
+router.delete('/:id', idPattern, removeCard);
+
+router.route('/:id/likes')
+  .put(idPattern, setLike)
+  .delete(idPattern, removeLike);
 
 module.exports = router;

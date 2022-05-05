@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const { celebrate, Joi, Segments } = require('celebrate');
 
 const {
   getUser,
@@ -8,20 +7,19 @@ const {
   updateUserAvatar,
   getCurrentUser,
 } = require('../controllers/users');
+const auth = require('../middlewares/auth');
+const { userPattern, idPattern } = require('../middlewares/validation');
 
-const userPattern = {
-  [Segments.BODY]: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^https?:\/\/(www)?.*/),
-  }),
-};
+router.use(auth);
 
-router.get('/users', getUsers);
-router.get('/users/me', getCurrentUser);
-router.get('/users/:userId', getUser);
+router.get('/', getUsers);
 
-router.patch('/users/me', celebrate(userPattern), updateUserInfo);
-router.patch('/users/me/avatar', celebrate(userPattern), updateUserAvatar);
+router.route('/me')
+  .get(getCurrentUser)
+  .patch(userPattern, updateUserInfo);
+
+router.get('/:id', idPattern, getUser);
+
+router.patch('/me/avatar', userPattern, updateUserAvatar);
 
 module.exports = router;

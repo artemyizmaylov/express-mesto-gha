@@ -1,31 +1,26 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const NotFound = require('../errors/NotFound');
+const NotFoundError = require('../errors/NotFoundError');
 const userModel = require('../models/user');
-const Unauthorized = require('../errors/Unauthorized');
 
 module.exports.getUser = (req, res, next) => {
-  const { userId } = req.params;
+  const { id } = req.params;
   userModel
-    .findById(userId)
+    .findById(id)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь не найден');
+        throw new NotFoundError('Пользователь не найден');
       }
       res.send(user);
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.getUsers = (req, res, next) => {
   userModel
     .find({})
     .then((users) => res.send(users))
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports.updateUserInfo = (req, res, next) => {
@@ -38,7 +33,7 @@ module.exports.updateUserInfo = (req, res, next) => {
       { new: true, runValidators: true },
     )
     .then((user) => res.send(user))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
@@ -48,7 +43,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
   userModel
     .findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -56,49 +51,36 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  // if (!validator.isEmail(email)) {
-  //   throw new BadRequest('Некорректный email');
-  // }
-
-  bcrypt.hash(password, 10).then((hash) => {
-    userModel
-      .create({
-        name, about, avatar, email, password: hash,
-      })
-      .then((user) => res.send({
-        email, name: user.name, about: user.about, avatar: user.avatar,
-      }))
-      .catch((err) => {
-        next(err);
-      });
-  });
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      userModel
+        .create({
+          name, about, avatar, email, password: hash,
+        })
+        .then((user) => {
+          const newUser = Object.assign(user);
+          delete newUser.password;
+          res.send(newUser);
+        })
+        .catch(next);
+    });
 };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  userModel.findOne({ email }).select('+password')
+  userModel.findUserByCreden(email, password)
     .then((user) => {
-      if (!user) {
-        throw new Unauthorized('Неправильные почта или пароль');
-      }
+      const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
 
-      bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new Unauthorized('Неправильные почта или пароль');
-          }
-
-          const token = jwt.sign({ _id: user._id }, 'secret', { expiresIn: '7d' });
-          res.cookie('jwt', token, { httpOnly: true }).send({ jwt: token });
-        })
-        .catch((err) => next(err));
+      res.cookie('jwt', token, { httpOnly: true }).send({ jwt: token });
+      res.send({ token });
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
   userModel.findById(req.user._id)
     .then((user) => res.send(user))
-    .catch((err) => next(err));
+    .catch(next);
 };
