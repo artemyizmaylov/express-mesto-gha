@@ -5,14 +5,14 @@ module.exports = (err, req, res, next) => {
 
   if (err.code === 11000) {
     res.status(CONFLICT_CODE).send({ message: 'Email уже зарегистрирован' });
-  }
-
-  if (err.name === 'CastError') {
+  } else if (err.name === 'CastError') {
     res.status(BAD_REQ_CODE).send({ message: 'Неправильный ID' });
+  } else if (err.name === 'ValidationError') {
+    res.status(BAD_REQ_CODE).send({ message: 'Переданы некорректные или неполные данные' });
+  } else {
+    res.status(statusCode).send(statusCode === DEFAUTL_CODE
+      ? { message: 'На сервере произошла ошибка' }
+      : { message });
+    next();
   }
-
-  res.status(statusCode).send(statusCode === DEFAUTL_CODE
-    ? { message: 'На сервере произошла ошибка' }
-    : { message });
-  next();
 };

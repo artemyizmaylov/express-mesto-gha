@@ -35,8 +35,7 @@ module.exports.removeCard = (req, res, next) => {
     .then((card) => {
       cardModel
         .findByIdAndRemove({ _id })
-        .then(() => res.send(card))
-        .catch(next);
+        .then(() => res.send(card));
     })
     .catch(next);
 };

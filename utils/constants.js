@@ -1,4 +1,4 @@
-const LINK_REGEXP = /^https?:\/\/(www)?.*/;
+const LINK_REGEXP = /^https?:\/\/(www\.)?[-\w]*\.[\w]{2,3}.*$/i;
 
 const BAD_REQ_CODE = 400;
 const UNAUTH_CODE = 401;
