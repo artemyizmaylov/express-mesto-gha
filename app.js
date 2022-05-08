@@ -12,6 +12,8 @@ const rateLimit = require('express-rate-limit');
 const errorsHandler = require('./middlewares/errorsHandler');
 const router = require('./routes/routes');
 
+const { errorLogger, expressLogger } = require('./middlewares/logger');
+
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
@@ -20,13 +22,17 @@ const app = express();
 app.listen(PORT);
 
 app.use(helmet()); // защита заголовков
-app.use(rateLimit({
+
+app.use(rateLimit({ // защита от DDoS
   windowMs: 15 * 60 * 1000, // 15 минут
   max: 100, // количество запросов
 }));
 
-app.use(bodyParser.json());
+app.use(bodyParser.json()); // сборка json из запросов
+
+app.use(expressLogger); // логгер запросов
 app.use(router);
 
-app.use(errors()); // ошибки Joi
-app.use(errorsHandler);
+app.use(errorLogger); // логгер ошибок
+app.use(errors()); // ошибки celebrate
+app.use(errorsHandler); // центральная обработка ошибок
