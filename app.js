@@ -16,7 +16,7 @@ const router = require('./routes/routes');
 
 const { errorLogger, expressLogger } = require('./middlewares/logger');
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
+mongoose.connect('mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb');
 
 const allowedCors = [
   'https://project.mesto.nomoredomains.xyz',
