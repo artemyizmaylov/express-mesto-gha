@@ -19,7 +19,6 @@ router.route('/me')
   .patch(userPattern, updateUserInfo);
 
 router.get('/:_id', idPattern, getUser);
-
 router.patch('/me/avatar', userPattern, updateUserAvatar);
 
 module.exports = router;

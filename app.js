@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const errorsHandler = require('./middlewares/errorsHandler');
 const router = require('./routes/routes');
 
@@ -36,11 +37,13 @@ app.use(rateLimit({ // защита от DDoS
 }));
 
 app.use(bodyParser.json()); // сборка json из запросов
+app.use(cookieParser()); // сборка кук
 
 app.use(expressLogger); // логгер запросов
 
 app.use(cors({
   origin: allowedCors,
+  credentials: true,
 }));
 
 app.use(router);

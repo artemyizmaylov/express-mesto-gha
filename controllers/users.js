@@ -81,13 +81,22 @@ module.exports.login = (req, res, next) => {
       );
 
       res
-        .cookie(
-          'jwt',
-          { token },
-          { httpOnly: true },
-        )
-        .send({ token });
+        .cookie('jwt', token, {
+          httpOnly: true,
+          maxAge: 3600000 * 24 * 7,
+        })
+        .send({ message: 'login' });
     })
+    .catch(next);
+};
+
+module.exports.logout = (req, res, next) => {
+  res
+    .cookie('jwt', 0, {
+      httpOnly: true,
+      maxAge: 0,
+    })
+    .send({ message: 'signout' })
     .catch(next);
 };
 
