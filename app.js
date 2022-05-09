@@ -43,6 +43,12 @@ app.use(cors({
   credentials: true,
 }));
 
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+}); // краш-тест для ревью
+
 app.use(router);
 
 app.use(errorLogger); // логгер ошибок
