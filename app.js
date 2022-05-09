@@ -1,7 +1,7 @@
 const process = require('process');
 require('dotenv').config();
 
-const { PORT = 4000 } = process.env;
+const { PORT = 3000 } = process.env;
 
 const { errors } = require('celebrate');
 const express = require('express');
@@ -16,7 +16,7 @@ const router = require('./routes/routes');
 
 const { errorLogger, expressLogger } = require('./middlewares/logger');
 
-mongoose.connect('mongodb://127.0.0.1:27017/?compressors=disabled&gssapiServiceName=mongodb');
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 const allowedCors = [
   'https://project.mesto.nomoredomains.xyz',
