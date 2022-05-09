@@ -1,10 +1,11 @@
 const process = require('process');
 require('dotenv').config();
 
-const { PORT = 3000 } = process.env;
+const { PORT = 4000 } = process.env;
 
 const { errors } = require('celebrate');
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
@@ -17,6 +18,12 @@ const { errorLogger, expressLogger } = require('./middlewares/logger');
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
+
+const allowedCors = [
+  'https://project.mesto.nomoredomains.xyz',
+  'http://project.mesto.nomoredomains.xyz',
+  'http://localhost:3000',
+];
 
 const app = express();
 app.listen(PORT);
@@ -31,6 +38,11 @@ app.use(rateLimit({ // защита от DDoS
 app.use(bodyParser.json()); // сборка json из запросов
 
 app.use(expressLogger); // логгер запросов
+
+app.use(cors({
+  origin: allowedCors,
+}));
+
 app.use(router);
 
 app.use(errorLogger); // логгер ошибок
