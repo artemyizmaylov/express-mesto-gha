@@ -5,6 +5,7 @@ const cardModel = require('../models/card');
 module.exports.getCards = (req, res, next) => {
   cardModel
     .find({})
+    .sort({ $natural: -1 })
     .then((cards) => res.send(cards))
     .catch(next);
 };
